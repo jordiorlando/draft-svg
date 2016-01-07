@@ -21,15 +21,15 @@
   }
 
   function create(element, type) {
-    var node = document.createElementNS(NS, type);
-    element.dom.svg = node;
-    return node;
+    var svg = document.createElementNS(NS, type);
+    element.dom.svg = svg;
+    return svg;
   }
 
-  /*function set(node, name, val, namespace) {
-    typeof namespace === 'string' ?
-      node.setAttributeNS(namespace, name, val) :
-      node.setAttribute(name, val);
+  /*function set(svg, name, val, namespace) {
+    typeof namespace == 'string' ?
+      svg.setAttributeNS(namespace, name, val) :
+      svg.setAttribute(name, val);
   }*/
 
   var svg = {
@@ -55,44 +55,46 @@
         } else if (obj[key] instanceof Draft.Element) {
           console.log('rendering:', obj[key].properties);
 
-          // TODO: remove this check and modularize node creation
+          // TODO: remove this check and modularize svg creation
           if (obj[key].parent.dom.svg) {
             var listener = function(e) {
-              console.log('event:', e.detail);
+              // console.log('event:', e.detail);
 
-              let type = e.detail.type;
-              let prop = e.detail.prop;
-              let val = Draft.px(e.detail.val);
+              var type = e.detail.type;
+              var prop = e.detail.prop;
+              var val = Draft.px(e.detail.val);
+              var svg = e.target.element.dom.svg;
 
               if (type == 'rect') {
                 if (prop == 'width') {
-                  node.setAttribute('width', val);
+                  svg.setAttribute('width', val);
                 } else if (prop == 'height') {
-                  node.setAttribute('height', val);
+                  svg.setAttribute('height', val);
                 }
-                // node.setAttribute('x', );
+                // svg.setAttribute('x', );
               } else if (type == 'circle') {
                 if (prop == 'r') {
-                  node.setAttribute('r', val);
+                  svg.setAttribute('r', val);
                 }
               }
             };
 
+            obj[key].dom.node.addEventListener('update', listener, false);
+
             var type = obj[key].properties.type;
-            var node = create(obj[key], type);
-            node.setAttribute('fill-opacity', 0);
-            node.setAttribute('stroke', '#000');
-            node.addEventListener('update', listener);
+            var svg = create(obj[key], type);
+            svg.setAttribute('fill-opacity', 0);
+            svg.setAttribute('stroke', '#000');
 
             if (type == 'rect') {
-              node.setAttribute('width', Draft.px(obj[key].width()));
-              node.setAttribute('height', Draft.px(obj[key].height()));
-              // node.setAttribute('x', );
+              svg.setAttribute('width', Draft.px(obj[key].width()));
+              svg.setAttribute('height', Draft.px(obj[key].height()));
+              // svg.setAttribute('x', );
             } else if (type == 'circle') {
-              node.setAttribute('r', Draft.px(obj[key].radius()));
+              svg.setAttribute('r', Draft.px(obj[key].radius()));
             }
 
-            obj[key].parent.dom.svg.appendChild(node);
+            obj[key].parent.dom.svg.appendChild(svg);
           }
 
           return obj[key];
