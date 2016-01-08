@@ -50,7 +50,7 @@
       console.log('');*/
 
       recursive(this, function(obj, key) {
-        if (key == 'parent') {
+        if (key == 'parent' || obj[key] instanceof Draft.Doc) {
           return false;
         } else if (obj[key] instanceof Draft.Element) {
           console.log('rendering:', obj[key].properties);
@@ -108,5 +108,5 @@
   };
 
   // Draft.extend(Draft.Container, svg);
-  Draft.Container.extend(svg);
+  Draft.Page.mixin(svg);
 })();
