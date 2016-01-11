@@ -26,12 +26,6 @@
     return svg;
   }
 
-  /*function set(svg, name, val, namespace) {
-    typeof namespace == 'string' ?
-      svg.setAttributeNS(namespace, name, val) :
-      svg.setAttribute(name, val);
-  }*/
-
   var svg = {
     // TODO: add elements to SVG dom as they are created in js
     svg: function(width, height) {
@@ -46,67 +40,60 @@
 
       svg.setAttribute('viewBox', viewBox(this));
 
-      /*console.log(this.properties);
-      console.log('');*/
-
       recursive(this, function(obj, key) {
         if (key == 'parent' || obj[key] instanceof Draft.Doc) {
           return false;
         } else if (obj[key] instanceof Draft.Element) {
-          console.log('rendering:', obj[key].properties);
+          console.info('rendering:', obj[key].prop());
 
-          // TODO: remove this check and modularize svg creation
-          if (obj[key].parent.dom.svg) {
-            var listener = function(e) {
-              // console.log('event:', e.detail);
+          var type = obj[key].prop('type');
+          var listener;
 
-              var type = e.detail.type;
-              var prop = e.detail.prop;
-              var val = Draft.px(e.detail.val);
-              var svg = e.target.element.dom.svg;
+          // TODO: modularize svg creation
+          var svg = create(obj[key], type);
+          obj[key].parent.dom.svg.appendChild(svg);
+          svg.setAttribute('fill-opacity', 0);
+          svg.setAttribute('stroke', '#000');
 
-              if (type == 'rect') {
-                if (prop == 'width') {
-                  svg.setAttribute('width', val);
-                } else if (prop == 'height') {
-                  svg.setAttribute('height', val);
-                }
-                // svg.setAttribute('x', );
-              } else if (type == 'circle') {
-                if (prop == 'r') {
-                  svg.setAttribute('r', val);
-                }
+          // TODO: separate listener for each property?
+          if (type == 'rect') {
+            listener = function(prop, val) {
+              val = Draft.px(val);
+
+              if (prop == 'width') {
+                svg.setAttribute('width', val);
+              } else if (prop == 'height') {
+                svg.setAttribute('height', val);
+              }
+              // svg.setAttribute('x', );
+            };
+
+            listener('width', obj[key].width());
+            listener('height', obj[key].height());
+            // svg.setAttribute('x', );
+          } else if (type == 'circle') {
+            listener = function(prop, val) {
+              val = Draft.px(val);
+
+              if (prop == 'r') {
+                svg.setAttribute('r', val);
               }
             };
 
-            obj[key].dom.node.addEventListener('update', listener, false);
-
-            var type = obj[key].properties.type;
-            var svg = create(obj[key], type);
-            svg.setAttribute('fill-opacity', 0);
-            svg.setAttribute('stroke', '#000');
-
-            if (type == 'rect') {
-              svg.setAttribute('width', Draft.px(obj[key].width()));
-              svg.setAttribute('height', Draft.px(obj[key].height()));
-              // svg.setAttribute('x', );
-            } else if (type == 'circle') {
-              svg.setAttribute('r', Draft.px(obj[key].radius()));
-            }
-
-            obj[key].parent.dom.svg.appendChild(svg);
+            listener('r', obj[key].radius());
           }
 
-          return obj[key];
-        }
+          obj[key].on('change', listener);
 
-        return undefined;
+          return obj[key];
+        } else {
+          return undefined;
+        }
       });
 
       return svg;
     }
   };
 
-  // Draft.extend(Draft.Container, svg);
   Draft.Page.mixin(svg);
 })();
