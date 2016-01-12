@@ -12,23 +12,23 @@
     }
   }
 
-  // 1 SVG user unit = 1px
-  function viewBox(element) {
-    return [
-      0, 0,
-      Draft.px(element.width()), Draft.px(element.height())
-    ].join(' ');
-  }
-
-  function create(element, type) {
-    var svg = document.createElementNS(NS, type);
-    element.dom.svg = svg;
-    return svg;
-  }
-
   var svg = {
     // TODO: add elements to SVG dom as they are created in js
-    svg: function(width, height) {
+    renderSVG: function(width, height) {
+      var create = function(element, type) {
+        var svg = document.createElementNS(NS, type);
+        element.dom.svg = svg;
+        return svg;
+      };
+
+      var calcX = function(element) {
+        return Draft.px(element.prop('x')) - Draft.px(element.width()) / 2;
+      };
+
+      var calcY = function(element) {
+        return -Draft.px(element.prop('y')) - Draft.px(element.height()) / 2;
+      };
+
       var svg = create(this, 'svg');
       svg.setAttribute('xmlns', NS);
       svg.setAttribute('version', VERSION);
@@ -36,12 +36,16 @@
 
       svg.setAttribute('id', Draft.domID(this));
       svg.setAttribute('width', width);
-      // svg.setAttribute('height', height);
+      // svg.setAttribute('max-height', height);
 
-      svg.setAttribute('viewBox', viewBox(this));
+      // 1 SVG user unit = 1px
+      svg.setAttribute('viewBox', [
+        calcX(this), calcY(this),
+        Draft.px(this.width()), Draft.px(this.height())
+      ].join(' '));
 
       recursive(this, function(obj, key) {
-        if (key == 'parent' || obj[key] instanceof Draft.Doc) {
+        if (key == 'parent' || obj[key] instanceof Draft.Doc || obj[key] instanceof Draft.View) {
           return false;
         } else if (obj[key] instanceof Draft.Element) {
           console.info('rendering:', obj[key].prop());
@@ -61,15 +65,23 @@
               val = Draft.px(val);
 
               if (prop == 'width') {
-                svg.setAttribute('width', val);
+                svg.setAttribute('width', Draft.px(val));
               } else if (prop == 'height') {
-                svg.setAttribute('height', val);
+                svg.setAttribute('height', Draft.px(val));
+              }
+
+              if (prop == 'x' || prop == 'width') {
+                svg.setAttribute('x', calcX(this.target));
+              } else if (prop == 'y' || prop == 'height') {
+                svg.setAttribute('y', calcY(this.target));
               }
               // svg.setAttribute('x', );
             };
 
-            listener('width', obj[key].width());
-            listener('height', obj[key].height());
+            listener.apply({target: obj[key]}, ['width', obj[key].width()]);
+            listener.apply({target: obj[key]}, ['height', obj[key].height()]);
+            listener.apply({target: obj[key]}, ['x', obj[key].prop('x')]);
+            listener.apply({target: obj[key]}, ['y', obj[key].prop('y')]);
             // svg.setAttribute('x', );
           } else if (type == 'circle') {
             listener = function(prop, val) {
@@ -77,6 +89,10 @@
 
               if (prop == 'r') {
                 svg.setAttribute('r', val);
+              } else if (prop == 'x') {
+                svg.setAttribute('cx', Draft.px(val));
+              } else if (prop == 'y') {
+                svg.setAttribute('cy', -Draft.px(val));
               }
             };
 
@@ -96,4 +112,5 @@
   };
 
   Draft.Page.mixin(svg);
+  Draft.View.mixin(svg);
 })();
