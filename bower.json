@@ -1,0 +1,23 @@
+{
+  "name": "draft-svg",
+  "authors": [
+    "Jordi Pakey-Rodriguez <jordi.orlando@gmail.com>"
+  ],
+  "description": "A plugin for draft.js that renders drafts using SVG",
+  "main": "dist/draft-svg.min.js",
+  "keywords": [
+    "draft",
+    "parametric",
+    "svg",
+    "js",
+    "javascript"
+  ],
+  "license": "MIT",
+  "homepage": "draft.D1SC0te.ch",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test"
+  ]
+}

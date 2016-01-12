@@ -13,7 +13,7 @@ Include the plugin after draft.js in your html file:
   ...
   <script src="draft.js/dist/draft.min.js"></script>
 
-  <script src="draft-svg/draft-svg.js"></script>
+  <script src="draft-svg/dist/draft-svg.min.js"></script>
 </head>
 <body>
   <div id="view" style="width: 100%; height: 100%"></div>
