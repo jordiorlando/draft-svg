@@ -6,7 +6,7 @@
 * copyright Jordi Pakey-Rodriguez <jordi.orlando@gmail.com>
 * license MIT
 *
-* BUILT: Mon Jan 11 2016 21:46:19 GMT-0600 (CST)
+* BUILT: Tue Jan 12 2016 18:52:31 GMT-0600 (CST)
 */
 (function() {
   const NS = 'http://www.w3.org/2000/svg';
@@ -44,7 +44,7 @@
       svg.setAttribute('version', VERSION);
       // svg.setAttributeNS(XMLNS, 'xmlns:xlink', XLINK);
 
-      svg.setAttribute('id', Draft.domID(this));
+      svg.setAttribute('id', this.getID());
       svg.setAttribute('width', width);
       // svg.setAttribute('max-height', height);
 

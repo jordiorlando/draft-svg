@@ -34,7 +34,7 @@
       svg.setAttribute('version', VERSION);
       // svg.setAttributeNS(XMLNS, 'xmlns:xlink', XLINK);
 
-      svg.setAttribute('id', Draft.domID(this));
+      svg.setAttribute('id', this.getID());
       svg.setAttribute('width', width);
       // svg.setAttribute('max-height', height);
 
