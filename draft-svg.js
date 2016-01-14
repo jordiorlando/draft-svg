@@ -1,20 +1,12 @@
 (function() {
   const NS = 'http://www.w3.org/2000/svg';
-  const XMLNS = 'http://www.w3.org/2000/xmlns/';
-  const XLINK = 'http://www.w3.org/1999/xlink';
+  // const XMLNS = 'http://www.w3.org/2000/xmlns/';
+  // const XLINK = 'http://www.w3.org/1999/xlink';
   const VERSION = '1.1';
 
-  // TODO: move this to draft.js
-  function recursive(obj, func) {
-    for (let key in obj) {
-      recursive(obj[key] instanceof Array ?
-        obj[key] : func(obj, key), func);
-    }
-  }
-
-  var svg = {
+  var mixin = {
     // TODO: add elements to SVG dom as they are created in js
-    renderSVG: function(width, height) {
+    renderSVG(width, height) {
       var create = function(element, type) {
         var svg = document.createElementNS(NS, type);
         element.dom.svg = svg;
@@ -29,28 +21,40 @@
         return -Draft.px(element.prop('y')) - Draft.px(element.height()) / 2;
       };
 
-      var svg = create(this, 'svg');
-      svg.setAttribute('xmlns', NS);
-      svg.setAttribute('version', VERSION);
-      // svg.setAttributeNS(XMLNS, 'xmlns:xlink', XLINK);
+      var svgRoot = create(this, 'svg');
+      svgRoot.setAttribute('xmlns', NS);
+      svgRoot.setAttribute('version', VERSION);
+      // svgRoot.setAttributeNS(XMLNS, 'xmlns:xlink', XLINK);
 
-      svg.setAttribute('id', this.getID());
-      svg.setAttribute('width', width);
-      // svg.setAttribute('max-height', height);
+      svgRoot.setAttribute('id', this.domID);
+      svgRoot.setAttribute('width', width);
+      if (height !== undefined) {
+        svgRoot.setAttribute('height', height);
+      }
 
       // 1 SVG user unit = 1px
-      svg.setAttribute('viewBox', [
+      svgRoot.setAttribute('viewBox', [
         calcX(this), calcY(this),
         Draft.px(this.width()), Draft.px(this.height())
       ].join(' '));
 
+      // TODO: move this to draft.js
+      var recursive = function(obj, func) {
+        for (var key in obj) {
+          recursive(obj[key] instanceof Array ?
+            obj[key] : func(obj, key), func);
+        }
+      };
+
       recursive(this, function(obj, key) {
-        if (key == 'parent' || obj[key] instanceof Draft.Doc || obj[key] instanceof Draft.View) {
+        if (key === 'parent' ||
+          obj[key] instanceof Draft.Doc ||
+          obj[key] instanceof Draft.View) {
           return false;
         } else if (obj[key] instanceof Draft.Element) {
-          console.info('rendering:', obj[key].prop());
+          // console.info('rendering:', obj[key].prop());
 
-          var type = obj[key].prop('type');
+          var type = obj[key].type;
           var listener;
 
           // TODO: modularize svg creation
@@ -60,19 +64,19 @@
           svg.setAttribute('stroke', '#000');
 
           // TODO: separate listener for each property?
-          if (type == 'rect') {
+          if (type === 'rect') {
             listener = function(prop, val) {
               val = Draft.px(val);
 
-              if (prop == 'width') {
+              if (prop === 'width') {
                 svg.setAttribute('width', Draft.px(val));
-              } else if (prop == 'height') {
+              } else if (prop === 'height') {
                 svg.setAttribute('height', Draft.px(val));
               }
 
-              if (prop == 'x' || prop == 'width') {
+              if (prop === 'x' || prop === 'width') {
                 svg.setAttribute('x', calcX(this.target));
-              } else if (prop == 'y' || prop == 'height') {
+              } else if (prop === 'y' || prop === 'height') {
                 svg.setAttribute('y', calcY(this.target));
               }
               // svg.setAttribute('x', );
@@ -83,15 +87,15 @@
             listener.apply({target: obj[key]}, ['x', obj[key].prop('x')]);
             listener.apply({target: obj[key]}, ['y', obj[key].prop('y')]);
             // svg.setAttribute('x', );
-          } else if (type == 'circle') {
+          } else if (type === 'circle') {
             listener = function(prop, val) {
               val = Draft.px(val);
 
-              if (prop == 'r') {
+              if (prop === 'r') {
                 svg.setAttribute('r', val);
-              } else if (prop == 'x') {
+              } else if (prop === 'x') {
                 svg.setAttribute('cx', Draft.px(val));
-              } else if (prop == 'y') {
+              } else if (prop === 'y') {
                 svg.setAttribute('cy', -Draft.px(val));
               }
             };
@@ -102,15 +106,13 @@
           obj[key].on('change', listener);
 
           return obj[key];
-        } else {
-          return undefined;
         }
       });
 
-      return svg;
+      return svgRoot;
     }
   };
 
-  Draft.Page.mixin(svg);
-  Draft.View.mixin(svg);
+  Draft.Page.mixin(mixin);
+  Draft.View.mixin(mixin);
 })();
