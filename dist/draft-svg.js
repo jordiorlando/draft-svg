@@ -6,7 +6,7 @@
 * copyright Jordi Pakey-Rodriguez <jordi.orlando@gmail.com>
 * license MIT
 *
-* BUILT: Thu Jan 14 2016 04:09:53 GMT-0600 (CST)
+* BUILT: Thu Jan 14 2016 17:37:52 GMT-0600 (CST)
 */
 (function() {
   const NS = 'http://www.w3.org/2000/svg';
@@ -24,11 +24,11 @@
       };
 
       var calcX = function(element) {
-        return Draft.px(element.prop('x')) - Draft.px(element.width()) / 2;
+        return draft.px(element.prop('x')) - draft.px(element.width()) / 2;
       };
 
       var calcY = function(element) {
-        return -Draft.px(element.prop('y')) - Draft.px(element.height()) / 2;
+        return -draft.px(element.prop('y')) - draft.px(element.height()) / 2;
       };
 
       var svgRoot = create(this, 'svg');
@@ -45,7 +45,7 @@
       // 1 SVG user unit = 1px
       svgRoot.setAttribute('viewBox', [
         calcX(this), calcY(this),
-        Draft.px(this.width()), Draft.px(this.height())
+        draft.px(this.width()), draft.px(this.height())
       ].join(' '));
 
       // TODO: move this to draft.js
@@ -58,11 +58,11 @@
 
       recursive(this, function(obj, key) {
         if (key === 'parent' ||
-          obj[key] instanceof Draft.Doc ||
-          obj[key] instanceof Draft.View) {
+          obj[key] instanceof draft.Doc ||
+          obj[key] instanceof draft.View) {
           return false;
-        } else if (obj[key] instanceof Draft.Element) {
-          // console.info('rendering:', obj[key].prop());
+        } else if (obj[key] instanceof draft.Element) {
+          console.info('rendering:', obj[key].prop());
 
           var type = obj[key].type;
           var listener;
@@ -76,12 +76,12 @@
           // TODO: separate listener for each property?
           if (type === 'rect') {
             listener = function(prop, val) {
-              val = Draft.px(val);
+              val = draft.px(val);
 
               if (prop === 'width') {
-                svg.setAttribute('width', Draft.px(val));
+                svg.setAttribute('width', draft.px(val));
               } else if (prop === 'height') {
-                svg.setAttribute('height', Draft.px(val));
+                svg.setAttribute('height', draft.px(val));
               }
 
               if (prop === 'x' || prop === 'width') {
@@ -99,14 +99,14 @@
             // svg.setAttribute('x', );
           } else if (type === 'circle') {
             listener = function(prop, val) {
-              val = Draft.px(val);
+              val = draft.px(val);
 
               if (prop === 'r') {
                 svg.setAttribute('r', val);
               } else if (prop === 'x') {
-                svg.setAttribute('cx', Draft.px(val));
+                svg.setAttribute('cx', draft.px(val));
               } else if (prop === 'y') {
-                svg.setAttribute('cy', -Draft.px(val));
+                svg.setAttribute('cy', -draft.px(val));
               }
             };
 
@@ -123,6 +123,6 @@
     }
   };
 
-  Draft.Page.mixin(mixin);
-  Draft.View.mixin(mixin);
+  draft.Page.mixin(mixin);
+  draft.View.mixin(mixin);
 })();
