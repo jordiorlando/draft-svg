@@ -40,8 +40,8 @@
 
       // TODO: move this to draft.js
       var recursive = function(obj, func) {
-        for (var key in obj) {
-          recursive(obj[key] instanceof Array ?
+        for (let key in obj) {
+          recursive(Array.isArray(obj[key]) ?
             obj[key] : func(obj, key), func);
         }
       };
@@ -52,7 +52,7 @@
           obj[key] instanceof draft.View) {
           return false;
         } else if (obj[key] instanceof draft.Element) {
-          console.info('rendering:', obj[key].prop());
+          console.info('rendering svg:', obj[key].prop());
 
           var type = obj[key].type;
           var listener;
