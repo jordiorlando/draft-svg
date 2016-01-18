@@ -9,7 +9,7 @@
     renderSVG(width, height) {
       var create = function(element, type) {
         var svg = document.createElementNS(NS, type);
-        element.dom.svg = svg;
+        element.svg = svg;
         return svg;
       };
 
@@ -59,7 +59,7 @@
 
           // TODO: modularize svg creation
           var svg = create(obj[key], type);
-          obj[key].parent.dom.svg.appendChild(svg);
+          obj[key].parent.svg.appendChild(svg);
           svg.setAttribute('fill-opacity', 0);
           svg.setAttribute('stroke', '#000');
 

@@ -6,7 +6,7 @@
 * copyright Jordi Pakey-Rodriguez <jordi.orlando@gmail.com>
 * license MIT
 *
-* BUILT: Thu Jan 14 2016 17:37:52 GMT-0600 (CST)
+* BUILT: Mon Jan 18 2016 00:00:58 GMT-0600 (CST)
 */
 (function() {
   const NS = 'http://www.w3.org/2000/svg';
@@ -19,7 +19,7 @@
     renderSVG(width, height) {
       var create = function(element, type) {
         var svg = document.createElementNS(NS, type);
-        element.dom.svg = svg;
+        element.svg = svg;
         return svg;
       };
 
@@ -50,8 +50,8 @@
 
       // TODO: move this to draft.js
       var recursive = function(obj, func) {
-        for (var key in obj) {
-          recursive(obj[key] instanceof Array ?
+        for (let key in obj) {
+          recursive(Array.isArray(obj[key]) ?
             obj[key] : func(obj, key), func);
         }
       };
@@ -62,14 +62,14 @@
           obj[key] instanceof draft.View) {
           return false;
         } else if (obj[key] instanceof draft.Element) {
-          console.info('rendering:', obj[key].prop());
+          console.info('rendering svg:', obj[key].prop());
 
           var type = obj[key].type;
           var listener;
 
           // TODO: modularize svg creation
           var svg = create(obj[key], type);
-          obj[key].parent.dom.svg.appendChild(svg);
+          obj[key].parent.svg.appendChild(svg);
           svg.setAttribute('fill-opacity', 0);
           svg.setAttribute('stroke', '#000');
 
