@@ -16,24 +16,27 @@ Include the plugin after draft.js in your html file:
   <script src="draft-svg/dist/draft-svg.min.js"></script>
 </head>
 <body>
-  <div id="view" style="width: 100%; height: 100%"></div>
+  <div id="body" style="width: 100%; height: 100%"></div>
 </body>
 ```
 
 Write a new script and include it after your html content:
 
 ```javascript
-// Create a new draft document and add a page to it
-var doc = draft.doc('my_document');
-var page = doc.page('page_1').size(600, 400);
+// Create a new draft document and add a group to it
+var doc = draft('my_document');
+var group = doc.group();
 
-// Add some shapes to the page
-var rect = page.rect(200, 150).fill('#18f');
-var circle = page.circle(50).fill('#f1c');
+// Add some shapes to the group
+var rect = group.rect(200, 150).fill('#18f');
+var circle = group.circle(50).fill('#f1c');
+
+// Create a view for the group
+var view = group.view(600, 400);
 
 // Use the draft-svg plugin to render an image
-var view = document.getElementById('view');
-view.appendChild(page.svg());
+var body = document.getElementById('body');
+body.appendChild(view.svg());
 ```
 
 ## Acknowledgements

@@ -6,123 +6,172 @@
 * copyright Jordi Pakey-Rodriguez <jordi.orlando@gmail.com>
 * license MIT
 *
-* BUILT: Mon Jan 18 2016 00:00:58 GMT-0600 (CST)
+* BUILT: Tue Jan 19 2016 20:50:10 GMT-0600 (CST)
 */
 (function() {
-  const NS = 'http://www.w3.org/2000/svg';
-  // const XMLNS = 'http://www.w3.org/2000/xmlns/';
-  // const XLINK = 'http://www.w3.org/1999/xlink';
-  const VERSION = '1.1';
+  draft.View.mixin({
+    svg(width, height) {
+      this._svgMaxWidth = width || this._svgMaxWidth || this.width();
+      this._svgMaxHeight = height || this._svgMaxHeight || this.height();
 
-  var mixin = {
-    // TODO: add elements to SVG dom as they are created in js
-    renderSVG(width, height) {
-      var create = function(element, type) {
-        var svg = document.createElementNS(NS, type);
-        element.svg = svg;
-        return svg;
-      };
+      if (this._svg === undefined) {
+        const NS = 'http://www.w3.org/2000/svg';
+        // const XMLNS = 'http://www.w3.org/2000/xmlns/';
+        // const XLINK = 'http://www.w3.org/1999/xlink';
+        const VERSION = '1.1';
 
-      var calcX = function(element) {
-        return draft.px(element.prop('x')) - draft.px(element.width()) / 2;
-      };
+        var calcX = function(element) {
+          return draft.px(element.prop('x')) - element.width() / 2;
+        };
 
-      var calcY = function(element) {
-        return -draft.px(element.prop('y')) - draft.px(element.height()) / 2;
-      };
+        var calcY = function(element) {
+          return -draft.px(element.prop('y')) - element.height() / 2;
+        };
 
-      var svgRoot = create(this, 'svg');
-      svgRoot.setAttribute('xmlns', NS);
-      svgRoot.setAttribute('version', VERSION);
-      // svgRoot.setAttributeNS(XMLNS, 'xmlns:xlink', XLINK);
+        var domPrefix = `${this.doc.domID}:${this.domID}:svg`;
+        var domID = function(element) {
+          return `${domPrefix}:${element.domID}`;
+        };
 
-      svgRoot.setAttribute('id', this.domID);
-      svgRoot.setAttribute('width', width);
-      if (height !== undefined) {
-        svgRoot.setAttribute('height', height);
-      }
+        var find = function(element) {
+          return document.getElementByID(domID(element));
+        };
 
-      // 1 SVG user unit = 1px
-      svgRoot.setAttribute('viewBox', [
-        calcX(this), calcY(this),
-        draft.px(this.width()), draft.px(this.height())
-      ].join(' '));
+        var render = function(element) {
+          console.info('rendering svg:', element.domID);
 
-      // TODO: move this to draft.js
-      var recursive = function(obj, func) {
-        for (let key in obj) {
-          recursive(Array.isArray(obj[key]) ?
-            obj[key] : func(obj, key), func);
-        }
-      };
-
-      recursive(this, function(obj, key) {
-        if (key === 'parent' ||
-          obj[key] instanceof draft.Doc ||
-          obj[key] instanceof draft.View) {
-          return false;
-        } else if (obj[key] instanceof draft.Element) {
-          console.info('rendering svg:', obj[key].prop());
-
-          var type = obj[key].type;
-          var listener;
-
-          // TODO: modularize svg creation
-          var svg = create(obj[key], type);
-          obj[key].parent.svg.appendChild(svg);
-          svg.setAttribute('fill-opacity', 0);
-          svg.setAttribute('stroke', '#000');
+          var node = document.createElementNS(NS, element.type);
 
           // TODO: separate listener for each property?
-          if (type === 'rect') {
-            listener = function(prop, val) {
-              val = draft.px(val);
+          var listener;
 
-              if (prop === 'width') {
-                svg.setAttribute('width', draft.px(val));
-              } else if (prop === 'height') {
-                svg.setAttribute('height', draft.px(val));
+          switch (element.type) {
+            case 'group':
+              node = document.createElementNS(NS, 'g');
+
+              for (let child of element.children) {
+                let childNode = render(child);
+                if (childNode) {
+                  node.appendChild(childNode);
+                }
               }
 
-              if (prop === 'x' || prop === 'width') {
-                svg.setAttribute('x', calcX(this.target));
-              } else if (prop === 'y' || prop === 'height') {
-                svg.setAttribute('y', calcY(this.target));
-              }
-              // svg.setAttribute('x', );
-            };
+              element.on('add', function(child) {
+                let childNode = render(child);
+                if (childNode) {
+                  node.appendChild(childNode);
+                }
+              });
 
-            listener.apply({target: obj[key]}, ['width', obj[key].width()]);
-            listener.apply({target: obj[key]}, ['height', obj[key].height()]);
-            listener.apply({target: obj[key]}, ['x', obj[key].prop('x')]);
-            listener.apply({target: obj[key]}, ['y', obj[key].prop('y')]);
-            // svg.setAttribute('x', );
-          } else if (type === 'circle') {
-            listener = function(prop, val) {
-              val = draft.px(val);
+              element.on('remove', function(child) {
+                node.removeChild(find(child));
+              });
+              // Falls through
+            case 'rect':
+              listener = function(prop, val) {
+                val = draft.px(val);
 
-              if (prop === 'r') {
-                svg.setAttribute('r', val);
-              } else if (prop === 'x') {
-                svg.setAttribute('cx', draft.px(val));
-              } else if (prop === 'y') {
-                svg.setAttribute('cy', -draft.px(val));
-              }
-            };
+                switch (prop) {
+                  case 'width':
+                    node.setAttribute('width', val);
+                    // Falls through
+                  case 'x':
+                    node.setAttribute('x', calcX(this.target));
+                    break;
+                  case 'height':
+                    node.setAttribute('height', val);
+                    // Falls through
+                  case 'y':
+                    node.setAttribute('y', calcY(this.target));
+                    break;
+                }
+              };
 
-            listener('r', obj[key].radius());
+              break;
+            case 'circle':
+              listener = function(prop, val) {
+                val = draft.px(val);
+
+                /* if (prop === 'cy') {
+                  val *= -1;
+                }
+
+                node.setAttribute(prop, val); */
+
+                switch (prop) {
+                  case 'r':
+                    node.setAttribute('r', val);
+                    break;
+                  case 'x':
+                    node.setAttribute('cx', val);
+                    break;
+                  case 'y':
+                    node.setAttribute('cy', -val);
+                    break;
+                }
+              };
+
+              break;
           }
 
-          obj[key].on('change', listener);
+          // TODO: support all elements
+          if (typeof listener === 'function') {
+            node.id = domID(element);
 
-          return obj[key];
-        }
-      });
+            // TODO: add support for fill and stroke
+            node.setAttribute('fill-opacity', 0);
+            node.setAttribute('stroke', '#000');
+            node.setAttribute('stroke-width', 1);
 
-      return svgRoot;
+            for (let prop in element.prop()) {
+              listener.apply({target: element}, [prop, element.prop(prop)]);
+            }
+
+            element.on('change', listener);
+
+            return node;
+          }
+        };
+
+        var svg = this._svg = document.createElementNS(NS, 'svg');
+        svg.setAttribute('xmlns', NS);
+        svg.setAttribute('version', VERSION);
+        // svg.setAttributeNS(XMLNS, 'xmlns:xlink', XLINK);
+
+        svg.id = domID(this);
+
+        var listener = function(prop) {
+          if (prop === 'width' || prop === 'height') {
+            // 1 SVG user unit = 1px
+            svg.setAttribute('viewBox', [
+              calcX(this.target), calcY(this.target),
+              this.target.width(), this.target.height()
+            ].join(' '));
+
+            let zoom = Math.min(
+              draft.px(this.target._svgMaxWidth) / this.target.width(),
+              draft.px(this.target._svgMaxHeight) / this.target.height()
+            );
+
+            let svgWidth = this.target.width() * zoom;
+            let svgHeight = this.target.height() * zoom;
+
+            this.target._svg.setAttribute('width', svgWidth);
+            this.target._svg.setAttribute('height', svgHeight);
+
+            console.info('aspect ratio:', this.target.aspectRatio);
+          }
+        };
+
+        listener.apply({target: this}, ['width']);
+        listener.apply({target: this}, ['height']);
+
+        this.on('change', listener);
+
+        svg.appendChild(render(this.parent));
+      }
+
+      return this._svg;
     }
-  };
-
-  draft.Page.mixin(mixin);
-  draft.View.mixin(mixin);
+  });
 })();
