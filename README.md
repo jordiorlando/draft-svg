@@ -4,6 +4,20 @@
 
 draft-svg is licensed under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
+## Installation
+
+Prebuilt distributions can be found on the [releases](https://github.com/D1SC0tech/draft-svg/releases) page.
+
+You can also use [`Bower`](http://bower.io/) or [`npm`](https://www.npmjs.com/package/draft.js):
+
+```sh
+# Install via Bower
+bower install draft-svg
+
+# Install via npm
+npm install draft-svg
+```
+
 ## Getting Started
 
 Include the plugin after draft.js in your html file:
