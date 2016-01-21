@@ -1,18 +1,20 @@
 {
   "name": "draft-svg",
   "version": "0.0.0",
-  "description": "A plugin for draft.js that renders drafts using SVG",
+  "description": "A plugin for draft.js that renders models using SVG",
   "keywords": [
     "draft",
+    "design",
     "parametric",
-    "svg",
+    "CAD",
     "js",
-    "javascript"
+    "javascript",
+    "SVG"
   ],
-  "homepage": "https://github.com/D1SC0tech/draft-svg",
+  "homepage": "http://draft.D1SC0te.ch",
   "license": "MIT",
-  "author": "Jordi Pakey-Rodriguez <jordi.orlando@gmail.com>",
-  "main": "dist/draft-svg.min.js",
+  "author": "Jordi Pakey-Rodriguez <jordi.orlando@hexa.io>",
+  "main": "dist/draft-svg.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/D1SC0tech/draft-svg.git"
@@ -29,8 +31,10 @@
     "gulp-sourcemaps": "^1.6.0",
     "gulp-uglify": "^1.5.1"
   },
-  "private": true,
-  "jshintConfig": {
-    "esnext": true
+  "bugs": {
+    "url": "https://github.com/D1SC0tech/draft-svg/issues"
+  },
+  "directories": {
+    "lib": "dist"
   }
 }
