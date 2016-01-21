@@ -149,7 +149,7 @@
             this.target._svg.setAttribute('width', svgWidth);
             this.target._svg.setAttribute('height', svgHeight);
 
-            console.info('aspect ratio:', this.target.aspectRatio);
+            // console.info('aspect ratio:', this.target.aspectRatio);
           }
         };
 

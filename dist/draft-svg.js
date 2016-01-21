@@ -1,12 +1,12 @@
 /*
-* draft-svg - A plugin for draft.js that renders drafts using SVG
+* draft-svg - A plugin for draft.js that renders models using SVG
 * version v0.0.0
-* https://github.com/D1SC0tech/draft-svg
+* http://draft.D1SC0te.ch
 *
-* copyright Jordi Pakey-Rodriguez <jordi.orlando@gmail.com>
+* copyright Jordi Pakey-Rodriguez <jordi.orlando@hexa.io>
 * license MIT
 *
-* BUILT: Tue Jan 19 2016 20:50:10 GMT-0600 (CST)
+* BUILT: Thu Jan 21 2016 05:41:28 GMT-0600 (CST)
 */
 (function() {
   draft.View.mixin({
@@ -159,7 +159,7 @@
             this.target._svg.setAttribute('width', svgWidth);
             this.target._svg.setAttribute('height', svgHeight);
 
-            console.info('aspect ratio:', this.target.aspectRatio);
+            // console.info('aspect ratio:', this.target.aspectRatio);
           }
         };
 
