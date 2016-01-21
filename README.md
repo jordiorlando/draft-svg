@@ -1,6 +1,6 @@
 # draft-svg
 
-**draft-svg** is a plugin for [draft.js](https://github.com/D1SC0tech/draft.js) that renders drafts using SVG.
+**draft-svg** is a plugin for [draft.js](https://github.com/D1SC0tech/draft.js) that renders models using SVG.
 
 draft-svg is licensed under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
