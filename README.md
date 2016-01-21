@@ -8,7 +8,7 @@ draft-svg is licensed under the terms of the [MIT License](https://opensource.or
 
 Prebuilt distributions can be found on the [releases](https://github.com/D1SC0tech/draft-svg/releases) page.
 
-You can also use [`Bower`](http://bower.io/) or [`npm`](https://www.npmjs.com/package/draft.js):
+You can also use [`Bower`](http://bower.io/) or [`npm`](https://www.npmjs.com/package/draft-svg):
 
 ```sh
 # Install via Bower
