@@ -1,6 +1,6 @@
 {
   "name": "draft-svg",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A plugin for draft.js that renders models using SVG",
   "keywords": [
     "draft",
@@ -20,7 +20,7 @@
     "url": "https://github.com/D1SC0tech/draft-svg.git"
   },
   "dependencies": {
-    "draft.js": "0.0.1"
+    "draft.js": "^0.0.3"
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.3.13",
@@ -28,7 +28,6 @@
     "gulp": "^3.9.0",
     "gulp-babel": "^6.1.1",
     "gulp-header": "^1.7.1",
-    "gulp-jasmine": "^2.2.1",
     "gulp-rename": "^1.2.2",
     "gulp-size": "^2.0.0",
     "gulp-sourcemaps": "^1.6.0",
@@ -39,5 +38,13 @@
   },
   "directories": {
     "lib": "dist"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "build": "gulp",
+    "preversion": "npm test",
+    "version": "npm run build && git add --all dist",
+    "postversion": "git push && git push --tags",
+    "prepublish": "git checkout master && git merge --no-ff dev && git push"
   }
 }

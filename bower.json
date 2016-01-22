@@ -21,11 +21,18 @@
     "url": "https://github.com/D1SC0tech/draft-svg.git"
   },
   "dependencies": {
-    "draft.js": "~0.0.1"
+    "draft.js": "^0.0.3"
   },
   "ignore": [
     "**/.*",
     "node_modules",
-    "bower_components"
+    "bower_components",
+    "docs",
+    "example",
+    "spec",
+    "src",
+    "gulpfile.*",
+    "CHANGELOG.*",
+    "ROADMAP.*"
   ]
 }
