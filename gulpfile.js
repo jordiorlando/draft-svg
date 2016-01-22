@@ -3,7 +3,6 @@
 const gulp = require('gulp');
 const babel = require('gulp-babel');
 const header = require('gulp-header');
-const jasmine = require('gulp-jasmine');
 const rename = require('gulp-rename');
 const size = require('gulp-size');
 const sourcemaps = require('gulp-sourcemaps');
@@ -13,6 +12,9 @@ const del = require('del');
 
 
 var pkg = require('./package.json');
+pkg.buildDate = Date();
+
+var src = 'draft-svg.js';
 
 var headerLong = [
   '/*',
@@ -39,19 +41,21 @@ gulp.task('clean', function() {
   del.sync(['dist/*']);
 });
 
-gulp.task('unify', ['clean'], function() {
-  pkg.buildDate = Date();
-
-  return gulp.src('draft-svg.js')
+gulp.task('es6', ['clean'], function() {
+  return gulp.src(src)
+    .pipe(rename({suffix: '-es6'}))
     .pipe(header(headerLong, {pkg: pkg}))
-    .pipe(gulp.dest('dist'))
-    .pipe(size({showFiles: true, title: 'Full'}));
+    .pipe(size({showFiles: true, title: 'Full'}))
+    .pipe(gulp.dest('dist'));
 });
 
-gulp.task('minify', ['unify'], function() {
-  return gulp.src('dist/draft-svg.js')
+gulp.task('build', ['clean'], function() {
+  return gulp.src(src)
+    .pipe(babel({presets: ['es2015']}))
+    .pipe(header(headerLong, {pkg: pkg}))
+    .pipe(size({showFiles: true, title: 'Full'}))
+    .pipe(gulp.dest('dist'))
     .pipe(sourcemaps.init({loadMaps: true}))
-      .pipe(babel({presets: ['es2015']}))
       .pipe(uglify())
       .pipe(rename({suffix: '.min'}))
       .pipe(header(headerShort, {pkg: pkg}))
@@ -61,4 +65,4 @@ gulp.task('minify', ['unify'], function() {
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('default', ['clean', 'unify', 'minify'], function() {});
+gulp.task('default', ['clean', 'es6', 'build'], function() {});
