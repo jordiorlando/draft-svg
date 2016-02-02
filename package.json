@@ -23,6 +23,7 @@
     "draft.js": "^0.0.3"
   },
   "devDependencies": {
+    "babel-plugin-transform-remove-console": "^6.3.13",
     "babel-preset-es2015": "^6.3.13",
     "del": "^2.2.0",
     "gulp": "^3.9.0",

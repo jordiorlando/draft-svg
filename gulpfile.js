@@ -51,7 +51,10 @@ gulp.task('es6', ['clean'], function() {
 
 gulp.task('build', ['clean'], function() {
   return gulp.src(src)
-    .pipe(babel({presets: ['es2015']}))
+    .pipe(babel({
+      plugins: ['transform-remove-console'],
+      presets: ['es2015']
+    }))
     .pipe(header(headerLong, {pkg: pkg}))
     .pipe(size({showFiles: true, title: 'Full'}))
     .pipe(gulp.dest('dist'))
