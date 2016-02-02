@@ -1,12 +1,12 @@
 /*
 * draft-svg - A plugin for draft.js that renders models using SVG
-* version v0.0.2
+* version v0.1.0
 * http://draft.D1SC0te.ch
 *
 * copyright Jordi Pakey-Rodriguez <jordi.orlando@hexa.io>
 * license MIT
 *
-* BUILT: Fri Jan 22 2016 03:21:17 GMT-0600 (CST)
+* BUILT: Tue Feb 02 2016 03:17:43 GMT-0600 (CST)
 */
 (function() {
   draft.View.mixin({
@@ -45,6 +45,30 @@
           // TODO: separate listener for each property?
           var listener;
 
+          var styleListener = function(prop, val) {
+            prop = prop.replace('.color', '').replace('.', '-');
+
+            var color = /^(fill|stroke)(-opacity)?$/;
+            var stroke = /^stroke-(width)?$/;
+
+            if (color.test(prop) || stroke.test(prop)) {
+              node.setAttribute(prop, val);
+            }
+          };
+
+          var setStyle = function(...args) {
+            element.on('change', styleListener);
+
+            for (let style of args) {
+              for (let prop of ['color', 'opacity', 'width']) {
+                prop = `${style}.${prop}`;
+                let val = element.prop(prop) || draft.defaults[prop];
+
+                styleListener.apply({target: element}, [prop, val]);
+              }
+            }
+          };
+
           switch (element.type) {
             case 'group':
               node = document.createElementNS(NS, 'g');
@@ -68,6 +92,8 @@
               });
               // Falls through
             case 'rect':
+              setStyle('fill', 'stroke');
+
               listener = function(prop, val) {
                 val = draft.px(val);
 
@@ -89,6 +115,8 @@
 
               break;
             case 'circle':
+              setStyle('fill', 'stroke');
+
               listener = function(prop, val) {
                 val = draft.px(val);
 
@@ -117,11 +145,6 @@
           // TODO: support all elements
           if (typeof listener === 'function') {
             node.id = domID(element);
-
-            // TODO: add support for fill and stroke
-            node.setAttribute('fill-opacity', 0);
-            node.setAttribute('stroke', '#000');
-            node.setAttribute('stroke-width', 1);
 
             for (let prop in element.prop()) {
               listener.apply({target: element}, [prop, element.prop(prop)]);

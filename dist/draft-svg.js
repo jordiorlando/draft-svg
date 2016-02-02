@@ -1,12 +1,12 @@
 /*
 * draft-svg - A plugin for draft.js that renders models using SVG
-* version v0.0.2
+* version v0.1.0
 * http://draft.D1SC0te.ch
 *
 * copyright Jordi Pakey-Rodriguez <jordi.orlando@hexa.io>
 * license MIT
 *
-* BUILT: Fri Jan 22 2016 03:21:17 GMT-0600 (CST)
+* BUILT: Tue Feb 02 2016 03:17:43 GMT-0600 (CST)
 */
 'use strict';
 
@@ -55,24 +55,74 @@
           };
 
           _render = function render(element) {
-            console.info('rendering svg:', element.domID);
 
             var node = document.createElementNS(NS, element.type);
 
             // TODO: separate listener for each property?
             var listener;
 
+            var styleListener = function styleListener(prop, val) {
+              prop = prop.replace('.color', '').replace('.', '-');
+
+              var color = /^(fill|stroke)(-opacity)?$/;
+              var stroke = /^stroke-(width)?$/;
+
+              if (color.test(prop) || stroke.test(prop)) {
+                node.setAttribute(prop, val);
+              }
+            };
+
+            var setStyle = function setStyle() {
+              element.on('change', styleListener);
+
+              for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+                args[_key] = arguments[_key];
+              }
+
+              var _iteratorNormalCompletion = true;
+              var _didIteratorError = false;
+              var _iteratorError = undefined;
+
+              try {
+                for (var _iterator = args[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                  var style = _step.value;
+                  var _arr = ['color', 'opacity', 'width'];
+
+                  for (var _i = 0; _i < _arr.length; _i++) {
+                    var prop = _arr[_i];
+                    prop = style + '.' + prop;
+                    var val = element.prop(prop) || draft.defaults[prop];
+
+                    styleListener.apply({ target: element }, [prop, val]);
+                  }
+                }
+              } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+              } finally {
+                try {
+                  if (!_iteratorNormalCompletion && _iterator.return) {
+                    _iterator.return();
+                  }
+                } finally {
+                  if (_didIteratorError) {
+                    throw _iteratorError;
+                  }
+                }
+              }
+            };
+
             switch (element.type) {
               case 'group':
                 node = document.createElementNS(NS, 'g');
 
-                var _iteratorNormalCompletion = true;
-                var _didIteratorError = false;
-                var _iteratorError = undefined;
+                var _iteratorNormalCompletion2 = true;
+                var _didIteratorError2 = false;
+                var _iteratorError2 = undefined;
 
                 try {
-                  for (var _iterator = element.children[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                    var child = _step.value;
+                  for (var _iterator2 = element.children[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var child = _step2.value;
 
                     var childNode = _render(child);
                     if (childNode) {
@@ -80,16 +130,16 @@
                     }
                   }
                 } catch (err) {
-                  _didIteratorError = true;
-                  _iteratorError = err;
+                  _didIteratorError2 = true;
+                  _iteratorError2 = err;
                 } finally {
                   try {
-                    if (!_iteratorNormalCompletion && _iterator.return) {
-                      _iterator.return();
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                      _iterator2.return();
                     }
                   } finally {
-                    if (_didIteratorError) {
-                      throw _iteratorError;
+                    if (_didIteratorError2) {
+                      throw _iteratorError2;
                     }
                   }
                 }
@@ -106,6 +156,8 @@
                 });
               // Falls through
               case 'rect':
+                setStyle('fill', 'stroke');
+
                 listener = function listener(prop, val) {
                   val = draft.px(val);
 
@@ -127,6 +179,8 @@
 
                 break;
               case 'circle':
+                setStyle('fill', 'stroke');
+
                 listener = function listener(prop, val) {
                   val = draft.px(val);
 
@@ -154,11 +208,6 @@
             // TODO: support all elements
             if (typeof listener === 'function') {
               node.id = domID(element);
-
-              // TODO: add support for fill and stroke
-              node.setAttribute('fill-opacity', 0);
-              node.setAttribute('stroke', '#000');
-              node.setAttribute('stroke-width', 1);
 
               for (var prop in element.prop()) {
                 listener.apply({ target: element }, [prop, element.prop(prop)]);
