@@ -1,12 +1,12 @@
 /*
 * draft-svg - A plugin for draft.js that renders models using SVG
-* version v0.1.0
+* version v0.1.1
 * http://draft.D1SC0te.ch
 *
 * copyright Jordi Pakey-Rodriguez <jordi.orlando@hexa.io>
 * license MIT
 *
-* BUILT: Tue Feb 02 2016 03:17:43 GMT-0600 (CST)
+* BUILT: Tue Feb 02 2016 03:41:51 GMT-0600 (CST)
 */
 (function() {
   draft.View.mixin({
