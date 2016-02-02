@@ -1,4 +1,5 @@
 /* eslint dot-location: [2, "property"] */
+const del = require('del');
 
 const gulp = require('gulp');
 const babel = require('gulp-babel');
@@ -7,7 +8,6 @@ const rename = require('gulp-rename');
 const size = require('gulp-size');
 const sourcemaps = require('gulp-sourcemaps');
 const uglify = require('gulp-uglify');
-const del = require('del');
 
 
 
@@ -38,7 +38,7 @@ var headerShort = [
 
 
 gulp.task('clean', function() {
-  del.sync(['dist/*']);
+  return del(['dist/*']);
 });
 
 gulp.task('es6', ['clean'], function() {
@@ -51,7 +51,10 @@ gulp.task('es6', ['clean'], function() {
 
 gulp.task('build', ['clean'], function() {
   return gulp.src(src)
-    .pipe(babel({presets: ['es2015']}))
+    .pipe(babel({
+      plugins: ['transform-remove-console'],
+      presets: ['es2015']
+    }))
     .pipe(header(headerLong, {pkg: pkg}))
     .pipe(size({showFiles: true, title: 'Full'}))
     .pipe(gulp.dest('dist'))
