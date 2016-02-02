@@ -43,9 +43,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0",
     "build": "gulp",
-    "preversion": "npm test",
+    "preversion": "npm test && git checkout master && git merge --no-ff dev",
     "version": "npm run build && git add --all dist",
-    "postversion": "git push && git push --tags",
-    "prepublish": "git checkout master && git merge --no-ff dev && git push"
+    "postversion": "git checkout dev && git merge --ff master",
+    "prepublish": "git checkout master",
+    "publish": "git push && git push --tags"
   }
 }
