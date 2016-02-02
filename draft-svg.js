@@ -35,6 +35,30 @@
           // TODO: separate listener for each property?
           var listener;
 
+          var styleListener = function(prop, val) {
+            prop = prop.replace('.color', '').replace('.', '-');
+
+            var color = /^(fill|stroke)(-opacity)?$/;
+            var stroke = /^stroke-(width)?$/;
+
+            if (color.test(prop) || stroke.test(prop)) {
+              node.setAttribute(prop, val);
+            }
+          };
+
+          var setStyle = function(...args) {
+            element.on('change', styleListener);
+
+            for (let style of args) {
+              for (let prop of ['color', 'opacity', 'width']) {
+                prop = `${style}.${prop}`;
+                let val = element.prop(prop) || draft.defaults[prop];
+
+                styleListener.apply({target: element}, [prop, val]);
+              }
+            }
+          };
+
           switch (element.type) {
             case 'group':
               node = document.createElementNS(NS, 'g');
@@ -58,6 +82,8 @@
               });
               // Falls through
             case 'rect':
+              setStyle('fill', 'stroke');
+
               listener = function(prop, val) {
                 val = draft.px(val);
 
@@ -79,6 +105,8 @@
 
               break;
             case 'circle':
+              setStyle('fill', 'stroke');
+
               listener = function(prop, val) {
                 val = draft.px(val);
 
@@ -107,11 +135,6 @@
           // TODO: support all elements
           if (typeof listener === 'function') {
             node.id = domID(element);
-
-            // TODO: add support for fill and stroke
-            node.setAttribute('fill-opacity', 0);
-            node.setAttribute('stroke', '#000');
-            node.setAttribute('stroke-width', 1);
 
             for (let prop in element.prop()) {
               listener.apply({target: element}, [prop, element.prop(prop)]);
