@@ -20,7 +20,7 @@
     "url": "https://github.com/D1SC0tech/draft-svg.git"
   },
   "peerDependencies": {
-    "draft.js": "^0.0.3"
+    "draft.js": "^0.1.0"
   },
   "devDependencies": {
     "babel-plugin-transform-remove-console": "^6.3.13",
