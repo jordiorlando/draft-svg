@@ -1,8 +1,33 @@
 (function() {
   draft.View.mixin({
     svg(width, height) {
-      this._svgMaxWidth = width || this._svgMaxWidth || this.width();
-      this._svgMaxHeight = height || this._svgMaxHeight || this.height();
+      var getWidth = function(element) {
+        return draft.types.length(element.prop('width')).valueOf();
+      };
+      var getHeight = function(element) {
+        return draft.types.length(element.prop('height')).valueOf();
+      };
+
+      var calcX = function(element) {
+        return draft.types.length(element.prop('x') || 0) -
+          getWidth(element) / 2;
+      };
+      var calcY = function(element) {
+        return -draft.types.length(element.prop('y') || 0) -
+          getHeight(element) / 2;
+      };
+
+      var domPrefix = `${this.doc.domID}:${this.domID}:svg`;
+      var domID = function(element) {
+        return `${domPrefix}:${element.domID}`;
+      };
+      var find = function(element) {
+        return document.getElementByID(domID(element));
+      };
+
+
+      this._svgMaxWidth = width || this._svgMaxWidth || getWidth(this);
+      this._svgMaxHeight = height || this._svgMaxHeight || getHeight(this);
 
       if (this._svg === undefined) {
         const NS = 'http://www.w3.org/2000/svg';
@@ -10,25 +35,8 @@
         // const XLINK = 'http://www.w3.org/1999/xlink';
         const VERSION = '1.1';
 
-        var calcX = function(element) {
-          return draft.px(element.prop('x')) - element.width() / 2;
-        };
-
-        var calcY = function(element) {
-          return -draft.px(element.prop('y')) - element.height() / 2;
-        };
-
-        var domPrefix = `${this.doc.domID}:${this.domID}:svg`;
-        var domID = function(element) {
-          return `${domPrefix}:${element.domID}`;
-        };
-
-        var find = function(element) {
-          return document.getElementByID(domID(element));
-        };
-
         var render = function(element) {
-          console.info('rendering svg:', element.domID);
+          // console.info('rendering svg:', element.domID);
 
           var node = document.createElementNS(NS, element.type);
 
@@ -85,8 +93,6 @@
               setStyle('fill', 'stroke');
 
               listener = function(prop, val) {
-                val = draft.px(val);
-
                 switch (prop) {
                   case 'width':
                     node.setAttribute('width', val);
@@ -108,8 +114,6 @@
               setStyle('fill', 'stroke');
 
               listener = function(prop, val) {
-                val = draft.px(val);
-
                 /* if (prop === 'cy') {
                   val *= -1;
                 }
@@ -155,19 +159,22 @@
 
         var listener = function(prop) {
           if (prop === 'width' || prop === 'height') {
+            let targetWidth = getWidth(this.target);
+            let targetHeight = getHeight(this.target);
+
             // 1 SVG user unit = 1px
             svg.setAttribute('viewBox', [
               calcX(this.target), calcY(this.target),
-              this.target.width(), this.target.height()
+              targetWidth, targetHeight
             ].join(' '));
 
             let zoom = Math.min(
-              draft.px(this.target._svgMaxWidth) / this.target.width(),
-              draft.px(this.target._svgMaxHeight) / this.target.height()
+              draft.types.length(this.target._svgMaxWidth) / targetWidth,
+              draft.types.length(this.target._svgMaxHeight) / targetHeight
             );
 
-            let svgWidth = this.target.width() * zoom;
-            let svgHeight = this.target.height() * zoom;
+            let svgWidth = targetWidth * zoom;
+            let svgHeight = targetHeight * zoom;
 
             this.target._svg.setAttribute('width', svgWidth);
             this.target._svg.setAttribute('height', svgHeight);
