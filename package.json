@@ -1,6 +1,6 @@
 {
   "name": "draft-svg",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "A plugin for draft.js that renders models using SVG",
   "keywords": [
     "draft",
