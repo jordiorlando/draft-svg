@@ -54,7 +54,7 @@
                 prop = `${style}.${prop}`;
                 let val = element.prop(prop) || draft.defaults[prop];
 
-                styleListener.apply({target: element}, [prop, val]);
+                styleListener(prop, val);
               }
             }
           };
