@@ -20,7 +20,7 @@
     "url": "https://github.com/D1SC0tech/draft-svg.git"
   },
   "peerDependencies": {
-    "draft.js": "^0.1.0"
+    "draft.js": "^0.2.0"
   },
   "devDependencies": {
     "babel-plugin-transform-remove-console": "^6.3.13",
@@ -47,6 +47,6 @@
     "version": "npm run build && git add --all dist",
     "postversion": "git checkout dev && git merge --ff master",
     "prepublish": "git checkout master",
-    "publish": "git push && git push --tags"
+    "publish": "git push --all && git push --tags"
   }
 }
