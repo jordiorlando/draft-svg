@@ -64,7 +64,7 @@
                 node.removeChild(document.getElementByID(domID(child)));
               });
               // Falls through
-            case 'rect':
+            case 'rectangle':
               node = node || create('rect');
 
               listener = function(prop, val) {
