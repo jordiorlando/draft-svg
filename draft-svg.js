@@ -21,9 +21,6 @@
       var domID = function(element) {
         return `${domPrefix}:${element.domID}`;
       };
-      var find = function(element) {
-        return document.getElementByID(domID(element));
-      };
 
 
       this._svgMaxWidth = width || this._svgMaxWidth || getWidth(this);
@@ -38,38 +35,16 @@
         var render = function(element) {
           // console.info('rendering svg:', element.domID);
 
-          var node = document.createElementNS(NS, element.type);
-
           // TODO: separate listener for each property?
-          var listener;
+          var node, listener;
 
-          var styleListener = function(prop, val) {
-            prop = prop.replace('.color', '').replace('.', '-');
-
-            var color = /^(fill|stroke)(-opacity)?$/;
-            var stroke = /^stroke-(width)?$/;
-
-            if (color.test(prop) || stroke.test(prop)) {
-              node.setAttribute(prop, val);
-            }
-          };
-
-          var setStyle = function(...args) {
-            element.on('change', styleListener);
-
-            for (let style of args) {
-              for (let prop of ['color', 'opacity', 'width']) {
-                prop = `${style}.${prop}`;
-                let val = element.prop(prop) || draft.defaults[prop];
-
-                styleListener(prop, val);
-              }
-            }
+          var create = function(type) {
+            return document.createElementNS(NS, type);
           };
 
           switch (element.type) {
             case 'group':
-              node = document.createElementNS(NS, 'g');
+              node = create('g');
 
               for (let child of element.children) {
                 let childNode = render(child);
@@ -86,11 +61,11 @@
               });
 
               element.on('remove', function(child) {
-                node.removeChild(find(child));
+                node.removeChild(document.getElementByID(domID(child)));
               });
               // Falls through
             case 'rect':
-              setStyle('fill', 'stroke');
+              node = node || create('rect');
 
               listener = function(prop, val) {
                 switch (prop) {
@@ -111,16 +86,14 @@
 
               break;
             case 'circle':
-              setStyle('fill', 'stroke');
+              node = create('circle');
 
               listener = function(prop, val) {
-                /* if (prop === 'cy') {
-                  val *= -1;
-                }
-
-                node.setAttribute(prop, val); */
-
                 switch (prop) {
+                  case 'rx':
+                  // Falls through
+                  case 'ry':
+                  // Falls through
                   case 'r':
                     node.setAttribute('r', val);
                     break;
@@ -137,8 +110,39 @@
           }
 
           // TODO: support all elements
-          if (typeof listener === 'function') {
+          if (node) {
             node.id = domID(element);
+
+            let hasStyle = [];
+            for (let style of ['fill', 'stroke']) {
+              if (style in element) {
+                hasStyle.push(style);
+              }
+            }
+
+            if (hasStyle.length) {
+              let styleListener = function(prop, val) {
+                prop = prop.replace('.color', '').replace('.', '-');
+
+                var color = /^(fill|stroke)(-opacity)?$/;
+                var stroke = /^stroke-(width)?$/;
+
+                if (color.test(prop) || stroke.test(prop)) {
+                  node.setAttribute(prop, val);
+                }
+              };
+
+              for (let style of hasStyle) {
+                for (let prop of ['color', 'opacity', 'width']) {
+                  prop = `${style}.${prop}`;
+                  let val = element.prop(prop) || draft.defaults[prop];
+
+                  styleListener(prop, val);
+                }
+              }
+
+              element.on('change', styleListener);
+            }
 
             for (let prop in element.prop()) {
               listener.apply({target: element}, [prop, element.prop(prop)]);
