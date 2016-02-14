@@ -62,6 +62,7 @@
                 node.removeChild(document.getElementByID(domID(child)));
               });
               // Falls through
+            case 'square':
             case 'rectangle':
               node = node || create('rect');
 
@@ -88,17 +89,16 @@
 
               listener = function(prop, val) {
                 switch (prop) {
+                  case 'rx':
+                  case 'ry':
+                    break;
                   case 'width':
                     prop = 'rx';
                     val.value /= 2;
                     break;
-                  case 'rx':
-                    break;
                   case 'height':
                     prop = 'ry';
                     val.value /= 2;
-                    break;
-                  case 'ry':
                     break;
                   case 'y':
                     val.value *= -1;
@@ -119,13 +119,12 @@
 
               listener = function(prop, val) {
                 switch (prop) {
+                  case 'r':
+                    break;
                   case 'width':
-                    // Falls through
                   case 'height':
                     prop = 'r';
                     val.value /= 2;
-                    break;
-                  case 'r':
                     break;
                   case 'y':
                     val.value *= -1;
