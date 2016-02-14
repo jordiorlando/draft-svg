@@ -83,25 +83,61 @@
               };
 
               break;
+            case 'ellipse':
+              node = create('ellipse');
+
+              listener = function(prop, val) {
+                switch (prop) {
+                  case 'width':
+                    prop = 'rx';
+                    val.value /= 2;
+                    break;
+                  case 'rx':
+                    break;
+                  case 'height':
+                    prop = 'ry';
+                    val.value /= 2;
+                    break;
+                  case 'ry':
+                    break;
+                  case 'y':
+                    val.value *= -1;
+                    // Falls through
+                  case 'x':
+                    prop = `c${prop}`;
+                    break;
+                  default:
+                    return;
+                }
+
+                node.setAttribute(prop, val);
+              };
+
+              break;
             case 'circle':
               node = create('circle');
 
               listener = function(prop, val) {
                 switch (prop) {
-                  case 'rx':
-                  // Falls through
-                  case 'ry':
-                  // Falls through
-                  case 'r':
-                    node.setAttribute('r', val);
+                  case 'width':
+                    // Falls through
+                  case 'height':
+                    prop = 'r';
+                    val.value /= 2;
                     break;
-                  case 'x':
-                    node.setAttribute('cx', val);
+                  case 'r':
                     break;
                   case 'y':
-                    node.setAttribute('cy', -val);
+                    val.value *= -1;
+                    // Falls through
+                  case 'x':
+                    prop = `c${prop}`;
                     break;
+                  default:
+                    return;
                 }
+
+                node.setAttribute(prop, val);
               };
 
               break;
