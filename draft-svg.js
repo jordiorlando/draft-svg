@@ -1,6 +1,11 @@
 (function() {
+  // TODO: use draft.WeakMap
+  let _svg = new WeakMap();
+  let _maxWidth = new WeakMap();
+  let _maxHeight = new WeakMap();
+
   draft.View.mixin({
-    svg(width, height) {
+    svg(width = _maxWidth.get(this), height = _maxHeight.get(this)) {
       var getWidth = function(element) {
         return draft.types.length(element.prop('width')).valueOf();
       };
@@ -23,10 +28,10 @@
       };
 
 
-      this._svgMaxWidth = width || this._svgMaxWidth || getWidth(this);
-      this._svgMaxHeight = height || this._svgMaxHeight || getHeight(this);
+      _maxWidth.set(this, width || getWidth(this));
+      _maxHeight.set(this, height || getHeight(this));
 
-      if (this._svg === undefined) {
+      if (!_svg.has(this)) {
         const NS = 'http://www.w3.org/2000/svg';
         // const XMLNS = 'http://www.w3.org/2000/xmlns/';
         // const XLINK = 'http://www.w3.org/1999/xlink';
@@ -154,7 +159,8 @@
           }
         };
 
-        var svg = this._svg = document.createElementNS(NS, 'svg');
+        var svg = document.createElementNS(NS, 'svg');
+        _svg.set(this, svg);
         svg.setAttribute('xmlns', NS);
         svg.setAttribute('version', VERSION);
         // svg.setAttributeNS(XMLNS, 'xmlns:xlink', XLINK);
@@ -173,15 +179,15 @@
             ].join(' '));
 
             let zoom = Math.min(
-              draft.types.length(this.target._svgMaxWidth) / targetWidth,
-              draft.types.length(this.target._svgMaxHeight) / targetHeight
+              draft.types.length(_maxWidth.get(this.target)) / targetWidth,
+              draft.types.length(_maxHeight.get(this.target)) / targetHeight
             );
 
             let svgWidth = targetWidth * zoom;
             let svgHeight = targetHeight * zoom;
 
-            this.target._svg.setAttribute('width', svgWidth);
-            this.target._svg.setAttribute('height', svgHeight);
+            _svg.get(this.target).setAttribute('width', svgWidth);
+            _svg.get(this.target).setAttribute('height', svgHeight);
 
             // console.info('aspect ratio:', this.target.aspectRatio);
           }
@@ -195,7 +201,7 @@
         svg.appendChild(render(this.parent));
       }
 
-      return this._svg;
+      return _svg.get(this);
     }
   });
 })();
