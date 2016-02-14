@@ -5,21 +5,15 @@
   let _maxHeight = new WeakMap();
 
   draft.View.mixin({
-    svg(width = _maxWidth.get(this), height = _maxHeight.get(this)) {
-      var getWidth = function(element) {
-        return draft.types.length(element.prop('width')).valueOf();
-      };
-      var getHeight = function(element) {
-        return draft.types.length(element.prop('height')).valueOf();
-      };
+    svg(width, height) {
+      width = width ? draft.types.length(width) : _maxWidth.get(this);
+      height = height ? draft.types.length(height) : _maxHeight.get(this);
 
       var calcX = function(element) {
-        return draft.types.length(element.prop('x') || 0) -
-          getWidth(element) / 2;
+        return (element.prop('x') || 0) - element.prop('width') / 2;
       };
       var calcY = function(element) {
-        return -draft.types.length(element.prop('y') || 0) -
-          getHeight(element) / 2;
+        return -(element.prop('y') || 0) - element.prop('height') / 2;
       };
 
       var domPrefix = `${this.doc.domID}:${this.domID}:svg`;
@@ -27,9 +21,8 @@
         return `${domPrefix}:${element.domID}`;
       };
 
-
-      _maxWidth.set(this, width || getWidth(this));
-      _maxHeight.set(this, height || getHeight(this));
+      _maxWidth.set(this, width || this.prop('width'));
+      _maxHeight.set(this, height || this.prop('height'));
 
       if (!_svg.has(this)) {
         const NS = 'http://www.w3.org/2000/svg';
@@ -169,18 +162,18 @@
 
         var listener = function(prop) {
           if (prop === 'width' || prop === 'height') {
-            let targetWidth = getWidth(this.target);
-            let targetHeight = getHeight(this.target);
+            let targetWidth = this.target.prop('width');
+            let targetHeight = this.target.prop('height');
 
             // 1 SVG user unit = 1px
             svg.setAttribute('viewBox', [
               calcX(this.target), calcY(this.target),
               targetWidth, targetHeight
-            ].join(' '));
+            ].map(val => val.valueOf()).join(' '));
 
             let zoom = Math.min(
-              draft.types.length(_maxWidth.get(this.target)) / targetWidth,
-              draft.types.length(_maxHeight.get(this.target)) / targetHeight
+              _maxWidth.get(this.target) / targetWidth,
+              _maxHeight.get(this.target) / targetHeight
             );
 
             let svgWidth = targetWidth * zoom;
