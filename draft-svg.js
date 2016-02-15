@@ -62,25 +62,60 @@
                 node.removeChild(document.getElementByID(domID(child)));
               });
               // Falls through
-            case 'square':
             case 'rectangle':
+              node = node || create('rect');
+
+              listener = function(prop, val) {
+                var link;
+
+                switch (prop) {
+                  case 'width':
+                    link = 'x';
+                    // Falls through
+                  case 'height':
+                    link = link || 'y';
+                    listener.call(this, link, this.target.prop(link));
+                    break;
+                  case 'y':
+                    link = 'height';
+                    val *= -1;
+                    // Falls through
+                  case 'x':
+                    link = link || 'width';
+                    val -= this.target.prop(link) / 2;
+                    break;
+                  default:
+                    return;
+                }
+
+                node.setAttribute(prop, val);
+              };
+
+              break;
+            case 'square':
               node = node || create('rect');
 
               listener = function(prop, val) {
                 switch (prop) {
                   case 'width':
-                    node.setAttribute('width', val);
+                    node.setAttribute('height', val);
+
+                    for (let link of ['x', 'y']) {
+                      listener.call(this, link, this.target.prop(link));
+                    }
+
+                    break;
+                  case 'y':
+                    val *= -1;
                     // Falls through
                   case 'x':
-                    node.setAttribute('x', calcX(this.target));
+                    val -= this.target.prop('width') / 2;
                     break;
-                  case 'height':
-                    node.setAttribute('height', val);
-                    // Falls through
-                  case 'y':
-                    node.setAttribute('y', calcY(this.target));
-                    break;
+                  default:
+                    return;
                 }
+
+                node.setAttribute(prop, val);
               };
 
               break;
@@ -89,9 +124,6 @@
 
               listener = function(prop, val) {
                 switch (prop) {
-                  case 'rx':
-                  case 'ry':
-                    break;
                   case 'width':
                     prop = 'rx';
                     val.value /= 2;
@@ -119,10 +151,8 @@
 
               listener = function(prop, val) {
                 switch (prop) {
-                  case 'r':
-                    break;
+                  case 'diameter':
                   case 'width':
-                  case 'height':
                     prop = 'r';
                     val.value /= 2;
                     break;
