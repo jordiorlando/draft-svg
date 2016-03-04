@@ -35,33 +35,61 @@
 
           // TODO: separate listener for each property?
           var node, listener;
+          var type = element.type;
+          var create = svgType => document.createElementNS(NS, svgType);
 
-          var create = function(type) {
-            return document.createElementNS(NS, type);
-          };
+          if (element instanceof draft.Group) {
+            node = create('g');
 
-          switch (element.type) {
-            case 'group':
-              node = create('g');
-
-              for (let child of element.children) {
-                let childNode = render(child);
-                if (childNode) {
-                  node.appendChild(childNode);
-                }
+            let renderChild = function(child) {
+              let childNode = render(child);
+              if (childNode) {
+                node.appendChild(childNode);
               }
+            };
 
-              element.on('add', function(child) {
-                let childNode = render(child);
-                if (childNode) {
-                  node.appendChild(childNode);
+            for (let child of element.children) {
+              renderChild(child);
+            }
+
+            element.on('add', renderChild);
+
+            element.on('remove', function(child) {
+              node.removeChild(document.getElementByID(domID(child)));
+            });
+
+            type = 'group';
+          }
+
+          switch (type) {
+            case 'line':
+              node = create('line');
+
+              listener = function(prop, val) {
+                var size;
+
+                switch (prop) {
+                  case 'y':
+                    val *= -1;
+                    size = 0;
+                    break;
+                  case 'width':
+                    val = this.target.prop('x');
+                    // Falls through
+                  case 'x':
+                    prop = 'x';
+                    size = this.target.prop('width') / 2;
+                    break;
+                  default:
+                    return;
                 }
-              });
 
-              element.on('remove', function(child) {
-                node.removeChild(document.getElementByID(domID(child)));
-              });
-              // Falls through
+                node.setAttribute(`${prop}1`, val - size);
+                node.setAttribute(`${prop}2`, val + size);
+              };
+
+              break;
+            case 'group':
             case 'rectangle':
               node = node || create('rect');
 
@@ -170,51 +198,55 @@
               };
 
               break;
+            default:
+              return;
           }
 
           // TODO: support all elements
-          if (node) {
-            node.id = domID(element);
+          node.id = domID(element);
 
-            let hasStyle = [];
-            for (let style of ['fill', 'stroke']) {
-              if (style in element) {
-                hasStyle.push(style);
-              }
+          let hasStyle = [];
+          for (let style of ['fill', 'stroke']) {
+            if (style in element) {
+              hasStyle.push(style);
             }
-
-            if (hasStyle.length) {
-              let styleListener = function(prop, val) {
-                prop = prop.replace('.color', '').replace('.', '-');
-
-                var color = /^(fill|stroke)(-opacity)?$/;
-                var stroke = /^stroke-(width)?$/;
-
-                if (color.test(prop) || stroke.test(prop)) {
-                  node.setAttribute(prop, val);
-                }
-              };
-
-              for (let style of hasStyle) {
-                for (let prop of ['color', 'opacity', 'width']) {
-                  prop = `${style}.${prop}`;
-                  let val = element.prop(prop) || draft.defaults[prop];
-
-                  styleListener(prop, val);
-                }
-              }
-
-              element.on('change', styleListener);
-            }
-
-            for (let prop in element.prop()) {
-              listener.apply({target: element}, [prop, element.prop(prop)]);
-            }
-
-            element.on('change', listener);
-
-            return node;
           }
+
+          if (hasStyle.length) {
+            let styleListener = function(prop, val) {
+              prop = prop.replace('.color', '').replace('.', '-');
+
+              var color = /^(fill|stroke)(-opacity)?$/;
+              var stroke = /^stroke-(width)?$/;
+
+              if (color.test(prop) || stroke.test(prop)) {
+                node.setAttribute(prop, val);
+              }
+            };
+
+            for (let style of hasStyle) {
+              for (let prop of ['color', 'opacity', 'width']) {
+                prop = `${style}.${prop}`;
+                let val = element.prop(prop) || draft.defaults[prop];
+
+                styleListener(prop, val);
+              }
+            }
+
+            element.on('change', styleListener);
+          }
+
+          for (let prop in element.prop()) {
+            listener.apply({target: element}, [prop, element.prop(prop)]);
+          }
+
+          element.on('change', listener);
+
+          node.addEventListener('click', function() {
+            element.fire('click');
+          });
+
+          return node;
         };
 
         var svg = document.createElementNS(NS, 'svg');
