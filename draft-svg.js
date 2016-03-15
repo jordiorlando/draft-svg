@@ -6,8 +6,8 @@
 
   draft.View.mixin({
     svg(width, height) {
-      width = width ? draft.types.length(width) : _maxWidth.get(this);
-      height = height ? draft.types.length(height) : _maxHeight.get(this);
+      width = width ? draft.newLength(width) : _maxWidth.get(this);
+      height = height ? draft.newLength(height) : _maxHeight.get(this);
 
       var calcX = function(element) {
         return (element.prop('x') || 0) - element.prop('width') / 2;
