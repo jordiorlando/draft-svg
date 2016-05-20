@@ -17,7 +17,7 @@
   "main": "dist/draft-svg.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/D1SC0tech/draft-svg.git"
+    "url": "https://github.com/0xdec/draft-svg.git"
   },
   "peerDependencies": {
     "draft.js": "^0.2.0"
@@ -36,7 +36,7 @@
     "gulp-umd": "^0.2.0"
   },
   "bugs": {
-    "url": "https://github.com/D1SC0tech/draft-svg/issues"
+    "url": "https://github.com/0xdec/draft-svg/issues"
   },
   "directories": {
     "lib": "dist"

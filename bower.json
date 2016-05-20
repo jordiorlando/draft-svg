@@ -18,7 +18,7 @@
   "main": "dist/draft-svg.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/D1SC0tech/draft-svg.git"
+    "url": "https://github.com/0xdec/draft-svg.git"
   },
   "dependencies": {
     "draft.js": "^0.2.0"

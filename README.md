@@ -1,12 +1,12 @@
 # draft-svg
 
-**draft-svg** is a plugin for [draft.js](https://github.com/D1SC0tech/draft.js) that renders models using SVG.
+**draft-svg** is a plugin for [draft.js](https://github.com/0xdec/draft.js) that renders models using SVG.
 
 draft-svg is licensed under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
 ## Installation
 
-Prebuilt distributions can be found on the [releases](https://github.com/D1SC0tech/draft-svg/releases) page.
+Prebuilt distributions can be found on the [releases](https://github.com/0xdec/draft-svg/releases) page.
 
 You can also use [`Bower`](http://bower.io) or [`npm`](https://npmjs.com/package/draft-svg):
 
